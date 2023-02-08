@@ -14,7 +14,7 @@ def globalVariable(request):
     context = {
         'topics': category,
         'topics_count': category_count,
-        'site_name':'PythonHaven'
+        'site_name':'winlinmactutorials'
 
     }
     return context

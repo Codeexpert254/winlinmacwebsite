@@ -115,7 +115,7 @@ def create_welcome_message(sender,instance,**kwargs):
     if kwargs['created']:
         Notification.objects.create(
             user=instance,
-            title='Welcome to PythonHaven',
+            title='Welcome to WinLinMac Tutorials',
             message='A new user has clocked in',
         )
         
