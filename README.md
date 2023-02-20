@@ -1,3 +1,0 @@
-# winlinmactemplate
-# winlinmactemplate
-# winlinmactemplate
