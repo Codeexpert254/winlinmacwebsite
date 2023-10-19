@@ -93,11 +93,37 @@ class Author(models.Model):
     #     return str(value)+"media/"+str(self.author_image)
     def __str__(self):
         return f'{self.id} -- {self.user.first_name} {self.user.last_name}'
+    
+    from django.db import models
+from django.utils.text import slugify
+from django.contrib.auth.models import User  # Assuming you're using the default User model
+
+# class Post(models.Model):
+#     status_choices = (
+#         ('active', 'Active'),
+#         ('pending', 'Pending')
+#     )
+
+#     title = models.CharField(max_length=200, unique=True)
+#     slug = models.SlugField(max_length=200, unique=True, blank=True)  # Allow it to be blank initially
+#     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='blog_posts')
+#     # author = models.ForeignKey(Author, on_delete= models.CASCADE,related_name='blog_posts')
+#     categories = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=True)  # Make sure Category is defined
+#     updated_on = models.DateTimeField(auto_now=True)
+#     content = models.TextField(blank=True, null=True)  # Changed to TextField for longer content
+#     image = models.ImageField(upload_to='images/media', null=True, blank=True)
+#     visit_count = models.IntegerField(default=0)
+#     featured = models.BooleanField(default=False)
+#     popular = models.BooleanField(default=False)
+#     visible = models.BooleanField(default=True)
+#     created_on = models.DateTimeField(auto_now_add=True)
+#     status = models.CharField(max_length=20, choices=status_choices, default='pending')
+    
 class Post(models.Model):
     status = (
         ('active', 'active'),
         ('pending', 'pending')
-    )
+        )
     title = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
     author = models.ForeignKey(Author, on_delete= models.CASCADE,related_name='blog_posts')
@@ -110,26 +136,64 @@ class Post(models.Model):
     popular = models.BooleanField(default=False)
     visible = models.BooleanField(default=True)
     created_on = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=status, default='pending')
+    post_status = models.CharField(max_length=20, choices=status, default='pending')
+
+
     class Meta:
-        verbose_name_plural = 'Post'
+        verbose_name_plural = 'Posts'
         ordering = ['-created_on']
+        
+    def save(self, *args, **kwargs):
+        if self.slug:
+            self.slug = slugify(self.title)  # Generate a slug based on the title
+            super().save(*args, **kwargs)
 
-    # def __str__(self):
-    #     return self.title
 
-    def overview(self):
-        short = self.detail[:30]
-        return short
 
-    @property
     def image_url(self):
         if self.image and hasattr(self.image, 'url'):
             return self.image.url
 
     def __str__(self):
         return f"{self.title} | {self.categories} | {self.status}"
-        # return f"{self.title} | {self.author.author.username} | {self.categories} | {self.status}"
+
+# class Post(models.Model):
+#     status = (
+#         ('active', 'active'),
+#         ('pending', 'pending')
+#     )
+#     title = models.CharField(max_length=200, unique=True)
+#     slug = models.SlugField(max_length=200, unique=True)
+#     author = models.ForeignKey(Author, on_delete= models.CASCADE,related_name='blog_posts')
+#     categories = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=True)
+#     updated_on = models.DateTimeField(auto_now= True)
+#     content = RichTextField(blank=True, null=True)
+#     image = models.ImageField(upload_to='images/media', null=True, blank=True)
+#     visit_count = models.IntegerField(default=0)
+#     featured = models.BooleanField(default=False)
+#     popular = models.BooleanField(default=False)
+#     visible = models.BooleanField(default=True)
+#     created_on = models.DateTimeField(auto_now_add=True)
+#     status = models.CharField(max_length=20, choices=status, default='pending')
+#     class Meta:
+#         verbose_name_plural = 'Post'
+#         ordering = ['-created_on']
+
+#     # def __str__(self):
+#     #     return self.title
+
+#     def overview(self):
+#         short = self.detail[:30]
+#         return short
+
+#     @property
+#     def image_url(self):
+#         if self.image and hasattr(self.image, 'url'):
+#             return self.image.url
+
+#     def __str__(self):
+#         return f"{self.title} | {self.categories} | {self.status}"
+#         # return f"{self.title} | {self.author.author.username} | {self.categories} | {self.status}"
 
 # Comment Class
 class Comment(models.Model):
@@ -180,7 +244,9 @@ class Contact(models.Model):
 class Image(models.Model):
     name = models.TextField()
     image = models.ImageField(upload_to='uploads/')
-    uploaded_by =models.ForeignKey(User, on_delete=models.CASCADE, related_name='images')
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    # uploaded_by =models.ForeignKey(User, on_delete=models.CASCADE, related_name='images')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

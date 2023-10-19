@@ -4,12 +4,19 @@ from django.urls import path
 app_name = 'blog'
 urlpatterns = [
 
+
+    # path('', views.HomeView.as_view(), name='home'),
     path('', views.HomeView.as_view(), name='home'),
+
     path('search/', views.SearchView.as_view(), name='search'),
-    path('<slug:slug>/', views.PostDetailView.as_view(), name='single-post' ),
+    # path('<slug:slug>/', views.PostDetailView.as_view(), name='single-post' ),
+    
+    path('<slug:slug>/', views.PostDetailView.as_view(), name='single-post'),
+
+
 
     #
-    path('category/<slug:slug>', views.CatagoryView.as_view(), name='post-category'),
+    path('category/<slug:slug>', views.CategoryView.as_view(), name='post-category'),
     path('tag/<int:id>', views.TagView.as_view(), name='tag'),
     path('member/subscription/', views.SubscriptionView.as_view(), name='member-subscription'),
     path('<int:id>/create-comment/', views.CommentView.as_view(), name='comment'),

@@ -24,54 +24,61 @@ from analytics.mixins import ObjectViewedMixin
 from .forms import ImageForm, AuthorForm
 
 
-class HomeView(generic.ListView):
-    # queryset = Post.objects.filter(status=1).order_by('-created_on')
-    model = Post
-    template_name = 'blog/index.html'
+# class HomeView(generic.ListView):
+#     # queryset = Post.objects.filter(status=1).order_by('-created_on')
+#     model = Post
+#     template_name = 'blog/index.html'
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        featured_obj = Post.objects.all().filter(status='active', visible=True, featured=True).order_by('categories',
-                                                                                                        '-created_on')[
-                       :5]
-        popular_obj = Post.objects.all().filter(status='active', visible=True, popular=True).order_by('categories',
-                                                                                                        '-created_on')[
-                       :5]
-        post_obj = Post.objects.all().filter(status='active', visible=True).order_by('categories', '-created_on')
+#     def get_context_data(self, *, object_list=None, **kwargs):
+#         featured_obj = Post.objects.all().filter(status='active', visible=True, featured=True).order_by('categories',
+#                                                                                                         '-created_on')[
+#                        :5]
+#         print(featured_obj)  # Add this line for debugging
+
+
+    
+#         # featured_obj = Post.objects.all().filter(status='active', visible=True, featured=True).order_by('categories', '-created_on')[:5]
+
+#         popular_obj = Post.objects.all().filter(status='active', visible=True, popular=True).order_by('categories',
+#                                                                                                         '-created_on')[
+#                        :5]
+#         post_obj = Post.objects.all().filter(status='active', visible=True).order_by('categories', '-created_on')
+
+#         # As per Templates Views
+#         first_post = featured_obj.first() if featured_obj else ''
+#         s_post = featured_obj[0] if featured_obj else ''
+#         last_post = featured_obj[2:] if featured_obj else ''
+
+#         context =super().get_context_data(**kwargs)
+#         context['post'] =post_obj
+#         context['f_post'] =featured_obj
+#         context['p_post'] =popular_obj
+#         context['first'] =first_post
+#         context['s_post'] =s_post
+#         context['last_post'] =last_post
+#         return context
+    
+
+
+class HomeView(generic.ListView):
+    def get(self, request, *args, **kwargs):
+        featured_obj = Post.objects.all().filter(post_status='active', visible=True, featured=True).order_by('categories','-created_on')[:5]
+        post_obj = Post.objects.all().filter(post_status='active', visible=True).order_by('categories', '-created_on')
 
         # As per Templates Views
-        first_post = featured_obj.first() if featured_obj else ''
-        s_post = featured_obj[0] if featured_obj else ''
-        last_post = featured_obj[2:] if featured_obj else ''
+        first_post = featured_obj.first()
+        s_post = featured_obj
+        last_post = featured_obj
+        context = {
+            'post': post_obj,
+            'f_post': featured_obj,
+            'first': first_post,
+            's_post': s_post,
+            'last_post': last_post
 
-        context =super().get_context_data(**kwargs)
-        context['post'] =post_obj
-        context['f_post'] =featured_obj
-        context['p_post'] =popular_obj
-        context['first'] =first_post
-        context['s_post'] =s_post
-        context['last_post'] =last_post
-        return context
+        }
 
-
-# class HomeView(generic.ListView):
-#     def get(self, request, *args, **kwargs):
-#         featured_obj = Post.objects.all().filter(status='active', visible=True, featured=True).order_by('categories','-created_on')[:5]
-#         post_obj = Post.objects.all().filter(status='active', visible=True).order_by('categories', '-created_on')
-#
-#         # As per Templates Views
-#         first_post = featured_obj.first()
-#         s_post = featured_obj[1]
-#         last_post = featured_obj[2:]
-#         context = {
-#             'post': post_obj,
-#             'f_post': featured_obj,
-#             'first': first_post,
-#             's_post': s_post,
-#             'last_post': last_post
-#
-#         }
-#
-#         return render(request, 'blog/index.html', context)
+        return render(request, 'blog/index.html', context)
 
 # ObjectViewedMixin
 class PostDetailView(generic.DetailView):
@@ -85,8 +92,8 @@ class PostDetailView(generic.DetailView):
 
 
         post_obj = get_object_or_404(Post, slug=self.kwargs['slug'])
-        # post_obj.visit_count = post_obj.visit_count + 1
-        # post_obj.save()
+        post_obj.visit_count = post_obj.visit_count + 1
+        post_obj.save()
 
         related_post = Post.objects.filter(author=post_obj.author).exclude(slug=self.kwargs['slug']).order_by('-id')[:2]
         # As per templates views
@@ -97,21 +104,20 @@ class PostDetailView(generic.DetailView):
         context['r_post']= related_post
         context['first'] =first_post
         context['last'] =last_post
-
         return context
 
 # class PostDetailView(View):
-#
+
 #     def get(self, request, slug, *args, **kwargs):
 #         post_obj = get_object_or_404(Post, slug=slug)
 #         post_obj.visit_count = post_obj.visit_count + 1
 #         post_obj.save()
 #         related_post = Post.objects.filter(author=post_obj.author).exclude(slug=slug).order_by('-id')[:4]
-#
+
 #         # As per templates views
 #         first_post = related_post.first()
 #         last_post = related_post[1:]
-#
+
 #         context = {
 #             'post': post_obj,
 #             'r_post': related_post,
@@ -123,15 +129,15 @@ class PostDetailView(generic.DetailView):
 
 
 # Category View
-class CatagoryView(View):
+class CategoryView(View):
     def get(self, request, slug, *args, **kwargs):
-        catagory_obj = get_object_or_404(Category, slug=slug)
+        category_obj = get_object_or_404(Category, slug=slug)
         # post = catagory_obj.blog_set.all().order_by('-id')
-        post = Post.objects.filter(categories=catagory_obj, \
-                                   status='active', visible=True) \
+        post = Post.objects.filter(categories=category_obj, \
+                                   post_status='active', visible=True) \
             .order_by('-created_on')
-        popular = Post.objects.filter(categories=catagory_obj, \
-                                      status='active', visible=True) \
+        popular = Post.objects.filter(categories=category_obj, \
+                                      post_status='active', visible=True) \
             .annotate(post_count=Count('visit_count')) \
             .order_by('-visit_count')
         # as Per templates views
@@ -195,7 +201,7 @@ class SubscriptionView(View):
 class SearchView(View):
     def get(self, request, *args, **kwargs):
         search = request.GET['q']
-        post = Post.objects.filter(status='active', visible=True)
+        post = Post.objects.filter(post_status='active', visible=True)
         if len(search) > 100:
             posts = post.none()
         else:

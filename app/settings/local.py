@@ -1,6 +1,6 @@
 import os
 import environ
-
+from decouple import config
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -13,16 +13,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-SECRET_KEY = env('SECRET_KEY')
-
+SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = config('DEBUG', cast=bool)
 
-
-SYSTEM_HOST = env('SYSTEM_HOST')
+SYSTEM_HOST = config("SYSTEM_HOST", default="localhost")
 
 # ALLOWED_HOSTS = [SYSTEM_HOST]
-ALLOWED_HOSTS = ['127.0.0.1','localhost']
+# ALLOWED_HOSTS = ['127.0.0.1','localhost']
+ALLOWED_HOSTS = []
+
 # os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 
 
@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'bootstrap_modal_forms',
     'widget_tweaks',
     'crispy_forms',
-    'ckeditor'
+    'ckeditor',
 ]
 
 SITE_ID=1
@@ -159,11 +159,11 @@ GEOIP_PATH =os.path.join(BASE_DIR, 'geoip')
 DJANGO_ALLOW_ASYNC_UNSAFE = False
 
 
-DATABASES = {
-#   'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
+
+  # 'default': {
+  #       'ENGINE': 'django.db.backends.sqlite3',
+  #       'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+  #   }
   #   'default': {
   #       'ENGINE': 'django.db.backends.mysql',
   #       'NAME': env('MYSQL_DATABASE'),
@@ -173,14 +173,15 @@ DATABASES = {
   #       'PORT': env('MYSQL_PORT')
   #   }
     # postgresql connection
-        "default": {
-            "ENGINE": 'django.db.backends.postgresql',
-            "NAME": env("POSTGRES_DB"),
-            "USER": env("POSTGRES_USER"),
-            "PASSWORD": env("POSTGRES_PASSWORD"),
-            "HOST": env("POSTGRES_HOST"),
-            "PORT": env("POSTGRES_PORT"),
-        }
+    
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+    }
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

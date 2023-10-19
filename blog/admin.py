@@ -3,8 +3,8 @@ from .models import Post,Category,Comment,Reply,Tag,EmailSignUp,Contact,Image,Au
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slug', 'status','created_on')
-    list_filter = ("status",)
+    list_display = ('title', 'slug', 'post_status','created_on')
+    list_filter = ("post_status",)
     search_fields = ['title', 'content']
     prepopulated_fields = {'slug': ('title',)}
     # prepopulated_fields = {'slug': ('name',)}

@@ -24,7 +24,8 @@
                     {% endif %}
 
                     <p class="text-uppercase font-weight-bold">
-                        <a class="text-danger" href="{% url 'blog:post-category' post.categories.slug %}">{{post.categories}}</a>
+                        <a class="text-danger" href="{% url 'blog:post-category' post.categories.slug %}">{{ post.categories }}</a>
+
                     </p>
                     <h1 class="display-4 secondfont mb-3 font-weight-bold">{{ post.title }}</h1>
                     <div class="d-flex align-items-center">
@@ -167,6 +168,8 @@
                     <p class="mb-3">
                           {{first.content |truncatechars:150 |striptags}}
                          <a href="{% url 'blog:single-post' first.slug %}" class="btn-green">Read More</a>
+                         {% comment %} <a href="{% url 'single-post' slug=post.slug %}" class="btn-green">>Read More</a> {% endcomment %}
+
                     </p>
                     <div>
                         <small class="d-block">

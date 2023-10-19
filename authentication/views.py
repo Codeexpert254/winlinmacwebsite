@@ -8,95 +8,95 @@ from django.contrib.auth.models import Group
 from django.core.mail import send_mail
 from .models import User,Notification
 from django.http import JsonResponse
-from .forms import UserSignupForm, UserLoginForm, ClientSignupForm,\
+from .forms import UserSignupForm, ClientSignupForm,\
     WriterSignupForm, UserUpdateProfileForm, UpdateTimezoneForm
 
 
-class UserRegistrationCreateView(FormView):
-    """
-    Create user api view
-    """
-    model = User
-    form_class = UserSignupForm
-    template_name = 'authenticate/register.html'
+# class UserRegistrationCreateView(FormView):
+#     """
+#     Create user api view
+#     """
+#     model = User
+#     form_class = UserSignupForm
+#     template_name = 'authenticate/register.html'
 
-    def post(self, request):
-        """
-        Overide the default post()
-        """
-        form = self.form_class(request.POST)
-        if not form.is_valid():
-            return render(request, self.template_name, {"form": form})
-        data = {
-            "first_name": form.cleaned_data['first_name'],
-            "last_name": form.cleaned_data['last_name'],
-            "username":form.cleaned_data['username'],
-            "password": form.cleaned_data['password'],
-            "email": form.cleaned_data['email'].lower(),
-        }
-        User.objects.create_user(**data)
-        signup_user=User.objects.get(email=data['email'])
-        # client_group=Group.objects.get(name='clients_group')
-        # client_group.user_set.add(signup_user)
-        return redirect(reverse('authentication:login'))
+#     def post(self, request):
+#         """
+#         Overide the default post()
+#         """
+#         form = self.form_class(request.POST)
+#         if not form.is_valid():
+#             return render(request, self.template_name, {"form": form})
+#         data = {
+#             "first_name": form.cleaned_data['first_name'],
+#             "last_name": form.cleaned_data['last_name'],
+#             "username":form.cleaned_data['username'],
+#             "password": form.cleaned_data['password'],
+#             "email": form.cleaned_data['email'].lower(),
+#         }
+#         User.objects.create_user(**data)
+#         signup_user=User.objects.get(email=data['email'])
+#         # client_group=Group.objects.get(name='clients_group')
+#         # client_group.user_set.add(signup_user)
+#         return redirect(reverse('authentication:login'))
 
-class ClientRegistrationCreateView(FormView):
-    """
-    Create user api view
-    """
-    model = User
-    form_class =ClientSignupForm
-    template_name = 'authenticate/register.html'
+# class ClientRegistrationCreateView(FormView):
+#     """
+#     Create user api view
+#     """
+#     model = User
+#     form_class =ClientSignupForm
+#     template_name = 'authenticate/register.html'
 
-    def post(self, request):
-        """
-        Overide the default post()
-        """
-        form = self.form_class(request.POST)
-        if not form.is_valid():
-            return render(request, self.template_name, {"form": form})
-        data = {
-            "first_name": form.cleaned_data['first_name'],
-            "last_name": form.cleaned_data['last_name'],
-            "username":form.cleaned_data['username'],
-            "password": form.cleaned_data['password'],
-            "email": form.cleaned_data['email'].lower(),
-            "date_of_birth": form.cleaned_data['date_of_birth'],
-        }
-        User.objects.create_user(**data)
-        return redirect(reverse('authentication:login'))
-
-
-class UserLoginCreateView(FormView):
-    """
-    Create user api view
-    """
-    model = User
-    form_class = UserLoginForm
-    template_name = 'authenticate/login.html'
-    success_url = reverse_lazy("blog:home")
-
-    def post(self, request):
-        """
-        Overide the default post()
-        # """
-        form = self.form_class(request.POST)
-        email = request.POST['username'].lower()
-        password = request.POST['password']
-        user = authenticate(request, email=email, password=password)
-        if user and user.is_active:
-            login(request, user)
-            return super(UserLoginCreateView, self).form_valid(form)
-        messages.success(request, 'This email and password combination is invalid', extra_tags='red')
-        return render(request, self.template_name, {"form": form})
+#     def post(self, request):
+#         """
+#         Overide the default post()
+#         """
+#         form = self.form_class(request.POST)
+#         if not form.is_valid():
+#             return render(request, self.template_name, {"form": form})
+#         data = {
+#             "first_name": form.cleaned_data['first_name'],
+#             "last_name": form.cleaned_data['last_name'],
+#             "username":form.cleaned_data['username'],
+#             "password": form.cleaned_data['password'],
+#             "email": form.cleaned_data['email'].lower(),
+#             "date_of_birth": form.cleaned_data['date_of_birth'],
+#         }
+#         User.objects.create_user(**data)
+#         return redirect(reverse('authentication:login'))
 
 
-def logout_view(request):
-    logout(request)
-    if request.user.is_superuser or request.user.is_staff:
-        redirect('/accounts/login')
-    else:
-        return redirect('/')
+# class UserLoginCreateView(FormView):
+#     """
+#     Create user api view
+#     """
+#     model = User
+#     form_class = UserLoginForm
+#     template_name = 'authenticate/login.html'
+#     success_url = reverse_lazy("blog:home")
+
+#     def post(self, request):
+#         """
+#         Overide the default post()
+#         # """
+#         form = self.form_class(request.POST)
+#         email = request.POST['username'].lower()
+#         password = request.POST['password']
+#         user = authenticate(request, email=email, password=password)
+#         if user and user.is_active:
+#             login(request, user)
+#             return super(UserLoginCreateView, self).form_valid(form)
+#         messages.success(request, 'This email and password combination is invalid', extra_tags='red')
+#         return render(request, self.template_name, {"form": form})
+
+
+# def logout_view(request):
+#     logout(request)
+#     if request.user.is_superuser or request.user.is_staff:
+#         redirect('/accounts/login')
+#     else:
+#         return redirect('/')
 
 
 def show_notification(request,notification_id):

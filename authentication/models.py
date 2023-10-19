@@ -17,26 +17,50 @@ from django.dispatch import receiver
 # Create your models here.
 
 
+# class UserManager(BaseUserManager):
+#     """
+#     Django requires that custom users define their own Manager class. By
+#     inheriting from `BaseUserManager`, we get a lot of the same code used by
+#     Django to create a `User` for free.
+#     All we have to do is override the `create_user` function which we will use
+#     to create `User` objects.
+#     """
+
+#     def create_user(self, *args, **kwargs):
+#         """Create and return a `User` with an email, username and password."""
+#         password = kwargs.get('password', '')
+#         email = kwargs.get('email', '')
+#         del kwargs['email']
+#         del kwargs['password']
+#         user = self.model(email=self.normalize_email(email), **kwargs)
+#         user.set_password(password)
+#         user.save()
+
+#         return user
+
+from django.contrib.auth.models import BaseUserManager
+
 class UserManager(BaseUserManager):
-    """
-    Django requires that custom users define their own Manager class. By
-    inheriting from `BaseUserManager`, we get a lot of the same code used by
-    Django to create a `User` for free.
-    All we have to do is override the `create_user` function which we will use
-    to create `User` objects.
-    """
-
-    def create_user(self, *args, **kwargs):
-        """Create and return a `User` with an email, username and password."""
-        password = kwargs.get('password', '')
-        email = kwargs.get('email', '')
-        del kwargs['email']
-        del kwargs['password']
-        user = self.model(email=self.normalize_email(email), **kwargs)
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        user.save()
-
+        user.save(using=self._db)
         return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+
 
 
 class User(AbstractBaseUser, PermissionsMixin):
